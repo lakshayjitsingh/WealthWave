@@ -60,10 +60,17 @@ router.post('/insights', authenticateToken, async (req, res) => {
       5. Be professional and concise.
     `;
 
+    // 1. Check if API Key exists
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error("ERROR: OPENROUTER_API_KEY is missing from environment variables!");
+      return res.status(500).json({ insight: "API Key is missing on the server. Please add it to Render's Environment Variables." });
+    }
+
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "google/gemini-2.0-flash-001",
+        // Using the FREE version to ensure it works even with $0 balance
+        model: "google/gemini-2.0-flash-lite-preview-02-05:free", 
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: message }
@@ -73,8 +80,7 @@ router.post('/insights', authenticateToken, async (req, res) => {
         headers: {
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app', // Your CORRECT Vercel URL
-          'Origin': 'https://wealth-wave-gamma.vercel.app',
+          'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app',
           'X-Title': 'WealthWave AI',
         }
       }
