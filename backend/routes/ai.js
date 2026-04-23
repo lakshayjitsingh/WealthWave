@@ -64,8 +64,15 @@ router.post('/insights', authenticateToken, async (req, res) => {
     res.json({ insight: reply });
 
   } catch (error) {
-    console.error("AI Error:", error.response ? error.response.data : error.message);
-    res.status(500).json({ insight: "The AI is currently unavailable. Please try again in a few minutes." });
+    let errorMessage = "The AI is currently unavailable.";
+    if (error.response && error.response.data && error.response.data.error) {
+      errorMessage = `OpenRouter Error: ${error.response.data.error.message || JSON.stringify(error.response.data.error)}`;
+    } else if (error.message) {
+      errorMessage = `Connection Error: ${error.message}`;
+    }
+    
+    console.error("AI Error Debug:", errorMessage);
+    res.status(500).json({ insight: errorMessage });
   }
 });
 
