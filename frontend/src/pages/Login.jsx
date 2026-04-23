@@ -70,7 +70,7 @@ const Login = () => {
         {/* Windows Download Link - Hidden inside Electron */}
         {!window.navigator.userAgent.includes('Electron') && (
           <div style={{ marginBottom: '2.5rem' }}>
-            <a href="https://drive.google.com/file/d/1sjmfL7FVvvkJ3Pfth2zldz6wpPUik5tP/view?usp=sharing" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <a href="https://drive.google.com/file/d/1dXM1DQ7HIrFW48MhWPvID0SUSAa7URP4/view?usp=sharing" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <div style={{ 
                 background: 'linear-gradient(135deg, #000 0%, #1a1a1a 100%)', 
                 color: '#fff', 
