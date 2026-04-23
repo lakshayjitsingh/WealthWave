@@ -96,7 +96,7 @@ const Dashboard = () => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       for (const t of queue) {
-        await axios.post('http://localhost:5000/api/transactions', t, config);
+        await axios.post('https://wealthwave-backend-65ww.onrender.com/api/transactions', t, config);
       }
       localStorage.setItem('offlineQueue', '[]');
       fetchDashboardData();
@@ -136,12 +136,12 @@ const Dashboard = () => {
 
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const sumRes = await axios.get('http://localhost:5000/api/dashboard/summary', config);
+      const sumRes = await axios.get('https://wealthwave-backend-65ww.onrender.com/api/dashboard/summary', config);
       setSummary(sumRes.data);
       if (sumRes.data.budgetLimit) setBudgetLimit(sumRes.data.budgetLimit);
       localStorage.setItem('cachedSummary', JSON.stringify(sumRes.data));
       
-      const transRes = await axios.get('http://localhost:5000/api/transactions', config);
+      const transRes = await axios.get('https://wealthwave-backend-65ww.onrender.com/api/transactions', config);
       setTransactions(transRes.data);
       localStorage.setItem('cachedTransactions', JSON.stringify(transRes.data));
       
@@ -154,7 +154,7 @@ const Dashboard = () => {
   const fetchGoals = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.get('http://localhost:5000/api/goals', config);
+      const res = await axios.get('https://wealthwave-backend-65ww.onrender.com/api/goals', config);
       setGoals(res.data);
     } catch (err) {
       console.error('Error fetching goals', err);
@@ -191,7 +191,7 @@ const Dashboard = () => {
 
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.post('http://localhost:5000/api/transactions', newTx, config);
+      await axios.post('https://wealthwave-backend-65ww.onrender.com/api/transactions', newTx, config);
       
       // Reset form
       setAmount(''); setCategory(type === 'expense' ? 'Food' : 'Salary'); setDescription(''); setCustomCategory('');
@@ -205,7 +205,7 @@ const Dashboard = () => {
   const handleDelete = async (id) => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`http://localhost:5000/api/transactions/${id}`, config);
+      await axios.delete(`https://wealthwave-backend-65ww.onrender.com/api/transactions/${id}`, config);
       fetchDashboardData();
     } catch (err) {
       console.error('Error deleting transaction', err);
@@ -220,7 +220,7 @@ const Dashboard = () => {
       const rate = exchangeRates[currency] || 1;
       const targetInUSD = parseFloat(targetAmountInput) / rate;
       
-      await axios.post('http://localhost:5000/api/goals', {
+      await axios.post('https://wealthwave-backend-65ww.onrender.com/api/goals', {
         ...newGoal,
         target_amount: targetInUSD
       }, config);
@@ -260,7 +260,7 @@ const Dashboard = () => {
             return;
           }
           
-          await axios.put(`http://localhost:5000/api/goals/${activeGoalId}`, { amount: cappedAmount }, config);
+          await axios.put(`https://wealthwave-backend-65ww.onrender.com/api/goals/${activeGoalId}`, { amount: cappedAmount }, config);
           
           // Record transaction
           const contributionTx = {
@@ -270,9 +270,9 @@ const Dashboard = () => {
             description: `Final contribution to goal: ${goal.name}`,
             date: new Date().toISOString()
           };
-          await axios.post('http://localhost:5000/api/transactions', contributionTx, config);
+          await axios.post('https://wealthwave-backend-65ww.onrender.com/api/transactions', contributionTx, config);
         } else {
-          await axios.put(`http://localhost:5000/api/goals/${activeGoalId}`, { amount: amountInUSD }, config);
+          await axios.put(`https://wealthwave-backend-65ww.onrender.com/api/goals/${activeGoalId}`, { amount: amountInUSD }, config);
           
           // Record transaction
           const contributionTx = {
@@ -282,7 +282,7 @@ const Dashboard = () => {
             description: `Contribution to goal: ${goal.name}`,
             date: new Date().toISOString()
           };
-          await axios.post('http://localhost:5000/api/transactions', contributionTx, config);
+          await axios.post('https://wealthwave-backend-65ww.onrender.com/api/transactions', contributionTx, config);
         }
       }
 
@@ -312,10 +312,10 @@ const Dashboard = () => {
           description: `Refund from deleted goal: ${goalToRefund.name}`,
           date: new Date().toISOString()
         };
-        await axios.post('http://localhost:5000/api/transactions', refundTx, config);
+        await axios.post('https://wealthwave-backend-65ww.onrender.com/api/transactions', refundTx, config);
       }
 
-      await axios.delete(`http://localhost:5000/api/goals/${id}`, config);
+      await axios.delete(`https://wealthwave-backend-65ww.onrender.com/api/goals/${id}`, config);
       fetchGoals();
       fetchDashboardData(); // Update balance
     } catch (err) {
@@ -331,7 +331,7 @@ const Dashboard = () => {
       const budgetInUSD = Number(newBudgetLimit) / rate;
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.put('http://localhost:5000/api/dashboard/budget', { budgetLimit: budgetInUSD }, config);
+      await axios.put('https://wealthwave-backend-65ww.onrender.com/api/dashboard/budget', { budgetLimit: budgetInUSD }, config);
       setBudgetLimit(budgetInUSD);
       setIsEditingBudget(false);
       fetchDashboardData(); // Refresh to update cachedSummary
@@ -434,7 +434,7 @@ const Dashboard = () => {
 
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.post('http://localhost:5000/api/ai/insights', {
+      const res = await axios.post('https://wealthwave-backend-65ww.onrender.com/api/ai/insights', {
         summary,
         transactions,
         goals,
