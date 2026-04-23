@@ -34,3 +34,7 @@ yarn-error.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Automation Scripts
+make_ppt.py
+make_report.py
