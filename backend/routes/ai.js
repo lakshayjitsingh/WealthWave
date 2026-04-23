@@ -24,7 +24,26 @@ router.post('/insights', authenticateToken, async (req, res) => {
       .join(', ');
 
     const context = `User: ${userName}, Balance: ${currency} ${(summary.balance * rate).toFixed(2)}, Expenses: ${currency} ${(summary.expense * rate).toFixed(2)}, Income: ${currency} ${(summary.income * rate).toFixed(2)}, Health Score: ${healthScore}/900, Top Spending: ${sortedCategories || "None"}`;
-    const systemPrompt = `You are WealthWave AI. User Data: ${context}. Be professional and concise.`;
+    
+    const systemPrompt = `
+      You are WealthWave AI, a premium financial advisor. 
+      You are built into the WealthWave Dashboard.
+      
+      WEBSITE FEATURE GUIDE (Tell the user how to find these):
+      - DARK MODE: There is a Sun/Moon icon in the top-right of the Navbar. Clicking it toggles between Light and Dark mode.
+      - ADDING DATA: Use the "Add New Transaction" card in the center to input Amount, Name, and Category.
+      - TAX SYSTEM: The "Estimated Annual Tax" card shows taxes for India, USA, UK, and Germany. Switch the Currency at the top to change the country.
+      - SAVINGS GOALS: Use the "Savings Goals" section to set and track specific financial targets.
+      - EXPORTS: Click the "Download Report" button (top right) to export your data as PDF or CSV.
+      
+      USER DATA FOR ANALYSIS:
+      ${context}
+      
+      INSTRUCTIONS:
+      1. If the user asks "how to" or "where is", use the FEATURE GUIDE.
+      2. If the user asks about money, use the USER DATA.
+      3. Be professional, friendly, and concise.
+    `;
 
     if (!process.env.OPENROUTER_API_KEY) {
       return res.status(500).json({ insight: "API Key missing on Render server." });
