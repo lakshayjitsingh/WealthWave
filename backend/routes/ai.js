@@ -23,56 +23,54 @@ router.post('/insights', authenticateToken, async (req, res) => {
       .map(([cat, amt]) => `${cat}: ${currency} ${(amt * rate).toFixed(2)}`)
       .join(', ');
 
-    const context = `
-      User: ${userName}
-      Balance: ${currency} ${(summary.balance * rate).toFixed(2)}
-      TOTAL EXPENSES THIS MONTH: ${currency} ${(summary.expense * rate).toFixed(2)}
-      TOTAL INCOME THIS MONTH: ${currency} ${(summary.income * rate).toFixed(2)}
-      Estimated Annual Tax: ${currency} ${Number(estimatedTax).toFixed(0)}
-      Financial Health Score: ${healthScore}/900
-      TOP SPENDING CATEGORIES: ${sortedCategories || "No expenses yet"}
-    `;
-
-    const systemPrompt = `
-      You are the WealthWave AI advisor. Help the user with their finances.
-      User Data: ${context}
-      Be professional and concise.
-    `;
+    const context = `User: ${userName}, Balance: ${currency} ${(summary.balance * rate).toFixed(2)}, Expenses: ${currency} ${(summary.expense * rate).toFixed(2)}, Income: ${currency} ${(summary.income * rate).toFixed(2)}, Health Score: ${healthScore}/900, Top Spending: ${sortedCategories || "None"}`;
+    const systemPrompt = `You are WealthWave AI. User Data: ${context}. Be professional and concise.`;
 
     if (!process.env.OPENROUTER_API_KEY) {
-      return res.status(500).json({ insight: "API Key missing on server." });
+      return res.status(500).json({ insight: "API Key missing on Render server." });
     }
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        model: "meta-llama/llama-3-8b-instruct:free", 
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ],
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    const modelsToTry = [
+      "meta-llama/llama-3.1-8b-instruct:free",
+      "deepseek/deepseek-chat:free",
+      "google/gemini-2.0-flash-lite-001"
+    ];
 
-    const reply = response.data.choices[0].message.content;
-    res.json({ insight: reply });
+    let lastError = "";
+    for (const model of modelsToTry) {
+      try {
+        const response = await axios.post(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            model: model, 
+            messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }]
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app',
+              'X-Title': 'WealthWave AI'
+            },
+            timeout: 10000 // 10 second timeout
+          }
+        );
+        
+        return res.json({ insight: response.data.choices[0].message.content });
+      } catch (err) {
+        lastError = err.response && err.response.data && err.response.data.error 
+                    ? err.response.data.error.message 
+                    : err.message;
+        console.log(`Model ${model} failed: ${lastError}`);
+        continue; // Try the next model
+      }
+    }
+
+    // If all fail
+    res.status(500).json({ insight: `AI Error: ${lastError}` });
 
   } catch (error) {
-    let errorMessage = "The AI is currently unavailable.";
-    if (error.response && error.response.data && error.response.data.error) {
-      errorMessage = `OpenRouter Error: ${error.response.data.error.message || JSON.stringify(error.response.data.error)}`;
-    } else if (error.message) {
-      errorMessage = `Connection Error: ${error.message}`;
-    }
-    
-    console.error("AI Error Debug:", errorMessage);
-    res.status(500).json({ insight: errorMessage });
+    res.status(500).json({ insight: "Critical AI Error. Please check logs." });
   }
 });
 
