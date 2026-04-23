@@ -66,25 +66,49 @@ router.post('/insights', authenticateToken, async (req, res) => {
       return res.status(500).json({ insight: "API Key is missing on the server. Please add it to Render's Environment Variables." });
     }
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        // Using the FREE version to ensure it works even with $0 balance
-        model: "google/gemini-2.0-flash-lite-preview-02-05:free", 
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ],
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app',
-          'X-Title': 'WealthWave AI',
+    let response;
+    try {
+      // Primary Attempt: Gemini Free
+      response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model: "google/gemini-2.0-flash-lite-preview-02-05:free", 
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: message }
+          ],
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app',
+            'X-Title': 'WealthWave AI',
+          }
         }
-      }
-    );
+      );
+    } catch (primaryError) {
+      console.log("Primary model failed, trying fallback...");
+      // Fallback Attempt: Llama 3 Free (Very reliable)
+      response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model: "meta-llama/llama-3-8b-instruct:free", 
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: message }
+          ],
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app',
+            'X-Title': 'WealthWave AI',
+          }
+        }
+      );
+    }
 
     const reply = response.data.choices[0].message.content;
     res.json({ insight: reply });
