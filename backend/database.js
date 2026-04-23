@@ -1,53 +1,58 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
+require('dotenv').config();
 
-const dbPath = path.resolve(__dirname, 'database.sqlite');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error connecting to SQLite database', err.message);
-  } else {
-    console.log('Connected to the SQLite database.');
-    
-    // Create tables
-    db.serialize(() => {
-      db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+const initDb = async () => {
+  try {
+    // Create Users Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
         name TEXT,
         email TEXT UNIQUE,
-        password TEXT
-      )`, () => {
-        // Try to add the new budget_limit column. Ignore error if it already exists.
-        db.run(`ALTER TABLE users ADD COLUMN budget_limit REAL DEFAULT 2000`, (err) => {
-          if (err && !err.message.includes('duplicate column name')) {
-            console.error('Migration error adding budget_limit:', err.message);
-          }
-        });
-      });
+        password TEXT,
+        budget_limit REAL DEFAULT 2000
+      )
+    `);
 
-      db.run(`CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
+    // Create Transactions Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
         type TEXT CHECK(type IN ('income', 'expense')),
         amount REAL,
         category TEXT,
         description TEXT,
-        date TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      )`);
+        date TEXT
+      )
+    `);
 
-      db.run(`CREATE TABLE IF NOT EXISTS goals (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
+    // Create Goals Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS goals (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
         name TEXT,
         target_amount REAL,
         current_amount REAL DEFAULT 0,
         icon TEXT,
-        color TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      )`);
-    });
-  }
-});
+        color TEXT
+      )
+    `);
 
-module.exports = db;
+    console.log('PostgreSQL Cloud Database initialized successfully.');
+  } catch (err) {
+    console.error('Error initializing PostgreSQL database:', err.message);
+  }
+};
+
+initDb();
+
+module.exports = pool;
