@@ -74,6 +74,7 @@ router.post('/insights', authenticateToken, async (req, res) => {
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': 'https://wealth-wave-gamma.vercel.app', // Your CORRECT Vercel URL
+          'Origin': 'https://wealth-wave-gamma.vercel.app',
           'X-Title': 'WealthWave AI',
         }
       }
