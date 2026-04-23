@@ -105,47 +105,17 @@ const Login = () => {
           <span style={{ color: 'var(--accent-secondary)' }}>anywhere, anytime.</span>
         </h2>
 
-        {/* The App Mockup - PURE CSS GLASS DESIGN */}
-        <div style={{ 
-          width: '100%', 
-          maxWidth: '400px', 
-          height: '240px',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
-          borderRadius: '24px',
-          border: '1px solid rgba(255,255,255,0.1)',
-          position: 'relative',
-          padding: '1.5rem',
-          boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
-          overflow: 'hidden'
-        }}>
-          {/* Mockup Header */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff5f56' }}></div>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffbd2e' }}></div>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27c93f' }}></div>
-          </div>
-          
-          {/* Mockup Content - Charts/Cards */}
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1, height: '80px', background: 'linear-gradient(to bottom, var(--accent-primary), transparent)', opacity: 0.2, borderRadius: '12px' }}></div>
-            <div style={{ flex: 1.5, height: '80px', background: 'linear-gradient(to bottom, var(--accent-secondary), transparent)', opacity: 0.2, borderRadius: '12px' }}></div>
-          </div>
-          
-          <div style={{ marginTop: '1rem', height: '40px', width: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}></div>
-          <div style={{ marginTop: '0.8rem', height: '20px', width: '60%', background: 'rgba(255,255,255,0.02)', borderRadius: '4px' }}></div>
-
-          {/* Glowing Orb */}
-          <div style={{ 
-            position: 'absolute', 
-            bottom: '-20px', 
-            right: '-20px', 
-            width: '150px', 
-            height: '150px', 
-            background: 'var(--accent-primary)', 
-            filter: 'blur(60px)', 
-            opacity: 0.15,
-            zIndex: -1
-          }}></div>
+        {/* The App Mockup - SHRUNK TO FIT */}
+        <div style={{ position: 'relative', width: '100%', maxWidth: '380px' }}>
+          <img 
+            src="./wealthwave_mockup.png" 
+            alt="WealthWave Premium Mockup" 
+            style={{ 
+              width: '100%', 
+              filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
+              borderRadius: '24px'
+            }}
+          />
         </div>
       </div>
 
